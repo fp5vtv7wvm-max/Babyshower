@@ -112,7 +112,6 @@ input{
         <h1>🍼 Sakura & Tyreq Trivia 🍼</h1>
         <p>Test your knowledge about the parents-to-be!</p>
 
-        <!-- 👤 NAME INPUT ADDED -->
         <input id="userName" type="text" placeholder="Enter your name">
 
         <button class="start-btn" onclick="startQuiz()">Start</button>
@@ -139,9 +138,7 @@ input{
         <div class="heart">💖</div>
         <h1>Thank You For Playing!</h1>
 
-        <!-- 👤 NAME OUTPUT -->
         <p id="nameText"></p>
-
         <p id="scoreText"></p>
         <p id="percentText"></p>
 
@@ -157,8 +154,9 @@ input{
     <input type="hidden" name="access_key" value="8f26afa9-fb38-4808-bbdd-3962f0dea382">
     <input type="hidden" name="subject" value="Sakura & Tyreq Baby Shower Trivia">
 
-    <!-- 👤 NAME FIELD -->
     <input type="hidden" name="Name">
+    <input type="hidden" name="Score">
+    <input type="hidden" name="Accuracy">
 
     <input type="hidden" name="Question 1">
     <input type="hidden" name="Question 2">
@@ -178,11 +176,18 @@ const questions = [
 { q:"Where did the parents meet?", type:"multiple", options:["A Party","Through a Friend","High School","POF"] },
 { q:"Who said I love you first?", type:"multiple", options:["Tyreq","Sakura","Same time"] },
 { q:"Who will be the stricter parent?", type:"multiple", options:["Tyreq","Sakura"] },
-{ q:"What will be the baby's full name?", type:"multiple", options:["Solana Sakura Harris","Tyland Tezaria Harris","Sakura Jamison-Brent the 2nd","Tyrella Harris"] },
+
+// 👶 BABY NAME (KEEP MULTIPLE CHOICE — AS REQUESTED)
+{ q:"What will be the baby's full name?", type:"multiple",
+options:["Solana Sakura Harris","Tyland Tezaria Harris","Sakura Jamison-Brent the 2nd","Tyrella Harris"] },
+
 { q:"What is Sakura's pregnancy craving?", type:"multiple", options:["Candy","Chicken","Steak","Pickles"] },
 { q:"What is Tyreq's craving?", type:"multiple", options:["Honey Bun","Oreos","Mc Donalds"] },
 { q:"Favorite colors?", type:"multiple", options:["Tyreq : Black || Sakura : Green","Tyreq : Gold || Sakura : Blue","Tyreq : Yellow || Sakura : Orange"] },
+
+// 📅 DUE DATE (KEEP MULTIPLE CHOICE — AS REQUESTED)
 { q:"Due date?", type:"multiple", options:["08/31/2026","09/31/2026","07/31/2026"] },
+
 { q:"Official Couple date?", type:"multiple", options:["07/04/2025","12/25/2025","10/31/2025"] },
 { q:"How did they make it official?", type:"multiple", options:["Firework Show","Movies","Dinner"] }
 ];
@@ -267,6 +272,14 @@ async function submit(){
         form.querySelector(`[name="Question ${i+1}"]`).value = a;
     });
 
+    let percent = Math.round((score / questions.length) * 100);
+
+    form.querySelector('[name="Score"]').value =
+        `${score} / ${questions.length}`;
+
+    form.querySelector('[name="Accuracy"]').value =
+        `${percent}%`;
+
     let fd = new FormData(form);
 
     let res = await fetch("https://api.web3forms.com/submit",{
@@ -280,8 +293,6 @@ async function submit(){
 
         document.getElementById("quizScreen").classList.remove("active");
         document.getElementById("success").classList.add("active");
-
-        let percent = Math.round((score / questions.length) * 100);
 
         document.getElementById("nameText").innerText =
             `Player: ${userName}`;
