@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sakura & Tyreq Baby Shower Trivia</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#ff69b4,#000);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    overflow:hidden;
+}
+
+.container{
+    width:100%;
+    max-width:700px;
+    background:rgba(0,0,0,.9);
+    border-radius:25px;
+    padding:40px;
+    color:white;
+    box-shadow:0 0 30px rgba(255,105,180,.5);
+}
+
+.screen{ display:none; }
+.screen.active{ display:block; }
+
+h1,h2{ color:#ff69b4; text-align:center; }
+
+.progress-container{
+    width:100%;
+    height:12px;
+    background:#222;
+    border-radius:50px;
+    overflow:hidden;
+    margin:20px 0;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:#ff69b4;
+    transition:.3s;
+}
+
+.progress-text{
+    text-align:right;
+    color:#ffc0cb;
+}
+
+.option-btn,
+.next-btn,
+.start-btn{
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    border:none;
+    border-radius:12px;
+    background:#ff69b4;
+    color:white;
+    cursor:pointer;
+    font-size:1rem;
+}
+
+.option-btn:hover,
+.next-btn:hover,
+.start-btn:hover{
+    background:#ff1493;
+}
+
+.option-btn.selected{
+    background:#ff1493;
+    border:2px solid white;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    margin-top:15px;
+}
+
+.center{ text-align:center; }
+
+.heart{ font-size:70px; animation:pulse 1.4s infinite; }
+
+@keyframes pulse{
+    50%{ transform:scale(1.2); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- WELCOME -->
+<div class="screen active" id="welcome">
+    <div class="center">
+        <h1>🍼 Sakura & Tyreq Trivia 🍼</h1>
+        <p>Test your knowledge about the parents-to-be!</p>
+
+        <!-- 👤 NAME INPUT ADDED -->
+        <input id="userName" type="text" placeholder="Enter your name">
+
+        <button class="start-btn" onclick="startQuiz()">Start</button>
+    </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="quizScreen">
+
+    <div class="progress-text" id="progressText"></div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <h2 id="questionTitle"></h2>
+    <div id="answers"></div>
+
+    <button class="next-btn" type="button" onclick="nextQuestion()">Next</button>
+</div>
+
+<!-- SUCCESS -->
+<div class="screen" id="success">
+    <div class="center">
+        <div class="heart">💖</div>
+        <h1>Thank You For Playing!</h1>
+
+        <!-- 👤 NAME OUTPUT -->
+        <p id="nameText"></p>
+
+        <p id="scoreText"></p>
+        <p id="percentText"></p>
+
+        <p>Baby Solana Sakura Harris</p>
+        <p>Due Date: 08/31/2026</p>
+    </div>
+</div>
+
+</div>
+
+<!-- WEB3FORMS -->
+<form id="web3form" style="display:none;">
+    <input type="hidden" name="access_key" value="8f26afa9-fb38-4808-bbdd-3962f0dea382">
+    <input type="hidden" name="subject" value="Sakura & Tyreq Baby Shower Trivia">
+
+    <!-- 👤 NAME FIELD -->
+    <input type="hidden" name="Name">
+
+    <input type="hidden" name="Question 1">
+    <input type="hidden" name="Question 2">
+    <input type="hidden" name="Question 3">
+    <input type="hidden" name="Question 4">
+    <input type="hidden" name="Question 5">
+    <input type="hidden" name="Question 6">
+    <input type="hidden" name="Question 7">
+    <input type="hidden" name="Question 8">
+    <input type="hidden" name="Question 9">
+    <input type="hidden" name="Question 10">
+</form>
+
+<script>
+
+const questions = [
+{ q:"Where did the parents meet?", type:"multiple", options:["A Party","Through a Friend","High School","POF"] },
+{ q:"Who said I love you first?", type:"multiple", options:["Tyreq","Sakura","Same time"] },
+{ q:"Who will be the stricter parent?", type:"multiple", options:["Tyreq","Sakura"] },
+{ q:"What will be the baby's full name?", type:"text" },
+{ q:"What is Sakura's pregnancy craving?", type:"multiple", options:["Candy","Chicken","Steak","Pickles"] },
+{ q:"What is Tyreq's craving?", type:"multiple", options:["Honey Bun","Oreos","Mc Donalds"] },
+{ q:"Favorite colors?", type:"multiple", options:["Tyreq : Black || Sakura : Green","Tyreq : Gold || Sakura : Blue","Tyreq : Yellow || Sakura : Orange"] },
+{ q:"Due date?", type:"multiple", options:["08/31/2026","09/31/2026","10/31/2026"] },
+{ q:"Official date?", type:"multiple", options:["07/04/2025","12/25/2025","10/31/2025"] },
+{ q:"How did they make it official?", type:"multiple", options:["Firework Show","Movies","Dinner"] }
+];
+
+const correctAnswers = [
+"High School",
+"Same time",
+"Sakura",
+"Solana Sakura Harris",
+"Candy",
+"Honey Bun",
+"Tyreq : Black || Sakura : Green",
+"08/31/2026",
+"07/04/2025",
+"Firework Show"
+];
+
+let index = 0;
+let answers = [];
+let selected = "";
+let score = 0;
+let userName = "";
+
+function startQuiz(){
+
+    userName = document.getElementById("userName").value.trim();
+
+    if(!userName){
+        alert("Please enter your name");
+        return;
+    }
+
+    document.getElementById("welcome").classList.remove("active");
+    document.getElementById("quizScreen").classList.add("active");
+    load();
+}
+
+function load(){
+
+    let q = questions[index];
+
+    document.getElementById("questionTitle").innerText = q.q;
+
+    document.getElementById("progressText").innerText =
+        `Question ${index+1} of ${questions.length}`;
+
+    document.getElementById("progressBar").style.width =
+        ((index+1)/questions.length)*100 + "%";
+
+    let box = document.getElementById("answers");
+    box.innerHTML = "";
+    selected = "";
+
+    if(q.type === "multiple"){
+        q.options.forEach(opt=>{
+            let b = document.createElement("button");
+            b.type = "button";
+            b.className = "option-btn";
+            b.innerText = opt;
+
+            b.onclick = ()=>{
+                document.querySelectorAll(".option-btn")
+                    .forEach(x=>x.classList.remove("selected"));
+                b.classList.add("selected");
+                selected = opt;
+            };
+
+            box.appendChild(b);
+        });
+    } else {
+        box.innerHTML = `<input id="textAns" type="text">`;
+    }
+}
+
+async function submit(){
+
+    let form = document.getElementById("web3form");
+
+    form.querySelector('[name="Name"]').value = userName;
+
+    answers.forEach((a,i)=>{
+        form.querySelector(`[name="Question ${i+1}"]`).value = a;
+    });
+
+    let fd = new FormData(form);
+
+    let res = await fetch("https://api.web3forms.com/submit",{
+        method:"POST",
+        body:fd
+    });
+
+    let data = await res.json();
+
+    if(data.success){
+
+        document.getElementById("quizScreen").classList.remove("active");
+        document.getElementById("success").classList.add("active");
+
+        let percent = Math.round((score / questions.length) * 100);
+
+        document.getElementById("nameText").innerText =
+            `Player: ${userName}`;
+
+        document.getElementById("scoreText").innerText =
+            `Score: ${score} / ${questions.length}`;
+
+        document.getElementById("percentText").innerText =
+            `Accuracy: ${percent}%`;
+    }
+    else {
+        alert("Submission failed");
+        console.log(data);
+    }
+}
+
+function next(){
+
+    let q = questions[index];
+    let ans = "";
+
+    if(q.type === "multiple"){
+        if(!selected) return alert("Pick an answer");
+        ans = selected;
+    } else {
+        ans = document.getElementById("textAns").value.trim();
+        if(!ans) return alert("Enter answer");
+    }
+
+    answers.push(ans);
+
+    if(ans === correctAnswers[index]){
+        score++;
+    }
+
+    index++;
+
+    if(index >= questions.length){
+        submit();
+        return;
+    }
+
+    load();
+}
+
+window.nextQuestion = next;
+
+</script>
+
+</body>
+</html>
